@@ -51,7 +51,7 @@ export default function JoinPage() {
 
         setIsConnecting(true);
 
-        const peer = new Peer({ debug: 2 });
+        const peer = new Peer({ host: "peerjs.linkgz.cn", secure: true, path: "/myapp" });
         peerRef.current = peer;
 
         peer.on("open", () => {

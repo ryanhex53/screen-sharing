@@ -21,7 +21,7 @@ export default function HostPage() {
 
     useEffect(() => {
         try {
-            const newPeer = new Peer({ debug: 2 });
+            const newPeer = new Peer({ host: "peerjs.linkgz.cn", secure: true, path: "/myapp" });
             setPeer(newPeer);
 
             newPeer.on("open", (id) => {
