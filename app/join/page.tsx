@@ -37,6 +37,12 @@ export default function JoinPage() {
     }, []);
 
     useEffect(() => {
+        if (roomId) {
+            joinRoom(roomId);
+        }
+    }, [roomId]);
+
+    useEffect(() => {
         if (videoRef.current && activeStream) {
             videoRef.current.srcObject = activeStream;
             videoRef.current.play().catch(console.error);
