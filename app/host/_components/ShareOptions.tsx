@@ -1,9 +1,11 @@
 "use client";
 
+import { getShortLink } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, Link as LinkIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
 interface ShareOptionsProps {
     roomId: string;
@@ -11,7 +13,24 @@ interface ShareOptionsProps {
 
 export function ShareOptions({ roomId }: ShareOptionsProps) {
     const t = useTranslations("ShareOptions");
+    const [roomUrl, setRoomUrl] = useState<string>(t("generating-link"));
     const { toast } = useToast();
+
+    useEffect(() => {
+        if (roomId) {
+            generateRoomUrl(`${window.location.origin}/join?room=${roomId}`);
+        }
+    }, [roomId]);
+
+    const generateRoomUrl = async (originalURL: string) => {
+        try {
+            const data = await getShortLink(originalURL);
+            setRoomUrl(data.shortURL);
+        } catch (error) {
+            console.error("Error generating short URL:", error);
+            setRoomUrl(originalURL);
+        }
+    };
 
     function copyRoomId() {
         navigator.clipboard.writeText(roomId);
@@ -22,8 +41,7 @@ export function ShareOptions({ roomId }: ShareOptionsProps) {
     }
 
     function copyShareableLink() {
-        const shareableUrl = `${window.location.origin}/join?room=${roomId}`;
-        navigator.clipboard.writeText(shareableUrl);
+        navigator.clipboard.writeText(roomUrl);
         toast({
             title: t("link-copied"),
             description: t("link-copied-desc")
@@ -60,7 +78,7 @@ export function ShareOptions({ roomId }: ShareOptionsProps) {
                         {t("copy-link-btn")}
                     </Button>
                 </div>
-                <code className="block w-full p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-mono truncate">{roomId ? `${window.location.origin}/join?room=${roomId}` : t("generating-link")}</code>
+                <code className="block w-full p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-mono truncate">{roomUrl}</code>
             </div>
         </div>
     );

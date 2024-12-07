@@ -23,3 +23,52 @@ export async function getTurnCredentials() {
 
     return response.json();
 }
+
+export type ShortLink = {
+    id: number;
+    originalURL: string;
+    DomainId?: number;
+    archived: boolean;
+    path: string;
+    source?: "website" | "api" | "public" | "spreadsheets" | "slack" | "telegram";
+    redirectType?: "301" | "302" | "307" | "308";
+    createdAt: string;
+    OwnerId?: number;
+    updatedAt: string;
+    secureShortURL: string;
+    hasPassword?: boolean;
+    shortURL: string;
+    duplicate: boolean;
+};
+
+/**
+ * get short link from short.io
+ * @param originalURL original URL to be shortened
+ */
+export async function getShortLink(originalURL: string): Promise<ShortLink> {
+    const domain = process.env.SHORT_IO_DOMAIN;
+    const key = process.env.SHORT_IO_API_KEY;
+
+    if (!domain || !key) {
+        throw new Error("Short.io are not properly configured");
+    }
+
+    const data = { domain, originalURL };
+
+    const response = await fetch("https://api.short.io/links/public", {
+        method: "POST",
+        headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+            authorization: key
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error("Failed to fetch short link: " + error);
+    }
+
+    return response.json();
+}
