@@ -28,7 +28,10 @@ export default function HostPage() {
                     host: "peerjs.linkgz.cn",
                     secure: true,
                     path: "/myapp",
-                    config: { iceServers: [turnConfig.iceServers], sdpSemantics: "unified-plan" }
+                    config: {
+                        iceServers: [{ urls: "stun:stun.l.google.com:19302" }, turnConfig.iceServers],
+                        sdpSemantics: "unified-plan"
+                    }
                 });
                 setPeer(newPeer);
 
