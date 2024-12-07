@@ -5,12 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Peer from "peerjs";
 import { useEffect, useRef, useState } from "react";
 import { getTurnCredentials } from "../actions";
 
 export default function JoinPage() {
+    const tc = useTranslations("Common");
+    const t = useTranslations("JoinPage");
     const [roomId, setRoomId] = useState("");
     const [isConnecting, setIsConnecting] = useState(false);
     const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
@@ -43,8 +46,8 @@ export default function JoinPage() {
     async function joinRoom(roomIdToJoin: string = roomId) {
         if (!roomIdToJoin.trim()) {
             toast({
-                title: "Room code required",
-                description: "Please enter a valid room code.",
+                title: t("code-required"),
+                description: t("code-required-desc"),
                 variant: "destructive"
             });
             return;
@@ -70,8 +73,8 @@ export default function JoinPage() {
 
             connection.on("open", () => {
                 toast({
-                    title: "Connected!",
-                    description: "Waiting for host to share their screen..."
+                    title: t("connected"),
+                    description: t("connected-desc")
                 });
             });
 
@@ -87,8 +90,8 @@ export default function JoinPage() {
                 setRoomId("");
                 setActiveStream(null);
                 toast({
-                    title: "Disconnected",
-                    description: "The session has been ended.",
+                    title: t("disconnected"),
+                    description: t("disconnected-desc"),
                     variant: "destructive"
                 });
             });
@@ -98,8 +101,8 @@ export default function JoinPage() {
             console.error("Peer error:", err);
             setIsConnecting(false);
             toast({
-                title: "Connection failed",
-                description: "Could not connect to the room. Please check the room code and try again.",
+                title: t("connection-failed"),
+                description: t("connection-failed-desc"),
                 variant: "destructive"
             });
         });
@@ -111,7 +114,7 @@ export default function JoinPage() {
                 <Button variant="outline" asChild>
                     <Link href="/" className="flex items-center gap-2">
                         <ArrowLeft className="h-4 w-4" />
-                        Back to Home
+                        {tc("back-to-home")}
                     </Link>
                 </Button>
 
@@ -119,16 +122,16 @@ export default function JoinPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Users className="h-6 w-6" />
-                            Join a Room
+                            {t("title")}
                         </CardTitle>
-                        <CardDescription>Enter the room code to join and view the shared screen</CardDescription>
+                        <CardDescription>{t("description")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {!activeStream ? (
                             <div className="space-y-4">
-                                <Input placeholder="Enter room code" value={roomId} onChange={(e) => setRoomId(e.target.value)} disabled={isConnecting} />
+                                <Input placeholder={t("enter-code")} value={roomId} onChange={(e) => setRoomId(e.target.value)} disabled={isConnecting} />
                                 <Button className="w-full" onClick={() => joinRoom()} disabled={isConnecting || !roomId.trim()}>
-                                    {isConnecting ? "Connecting..." : "Join Room"}
+                                    {isConnecting ? t("connecting") : t("join-room")}
                                 </Button>
                             </div>
                         ) : (
