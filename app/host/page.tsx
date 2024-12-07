@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Peer from "peerjs";
 import { useEffect, useState } from "react";
+import { getTurnCredentials } from "../actions";
 import { ShareOptions } from "./_components/ShareOptions";
 
 export default function HostPage() {
@@ -20,17 +21,9 @@ export default function HostPage() {
     const router = useRouter();
 
     useEffect(() => {
-        const fetchTurnCredentials = async () => {
+        const initializePeer = async () => {
             try {
-                const response = await fetch("/api/turn-credentials", {
-                    method: "POST"
-                });
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch TURN credentials");
-                }
-
-                const turnConfig = await response.json();
+                const turnConfig = await getTurnCredentials();
                 const newPeer = new Peer({
                     host: "peerjs.linkgz.cn",
                     secure: true,
@@ -59,7 +52,7 @@ export default function HostPage() {
             }
         };
 
-        fetchTurnCredentials();
+        initializePeer();
     }, []);
 
     useEffect(() => {

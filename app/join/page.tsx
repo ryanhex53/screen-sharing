@@ -8,6 +8,7 @@ import { ArrowLeft, Users } from "lucide-react";
 import Link from "next/link";
 import Peer from "peerjs";
 import { useEffect, useRef, useState } from "react";
+import { getTurnCredentials } from "../actions";
 
 export default function JoinPage() {
     const [roomId, setRoomId] = useState("");
@@ -51,15 +52,7 @@ export default function JoinPage() {
 
         setIsConnecting(true);
 
-        const response = await fetch("/api/turn-credentials", {
-            method: "POST"
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to fetch TURN credentials");
-        }
-
-        const turnConfig = await response.json();
+        const turnConfig = await getTurnCredentials();
 
         const peer = new Peer({
             host: "peerjs.linkgz.cn",
