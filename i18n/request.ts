@@ -6,14 +6,14 @@ const LOCALES = ["en", "zh"];
 export default getRequestConfig(async () => {
     // Provide a static locale, fetch a user setting,
     // read locale from `cookies()`, `headers()`, etc.
-    // const locale = LOCALES.includes(navigator.language) ? navigator.language : "en";
-    // const locale = (await cookies()).get('locale')?.value || "en";
-    const locale =
-        (await headers())
-            .get("accept-language")
-            ?.split(",")
-            .map((l) => l.replace(/;q=[\.\d]+/, ""))
-            .find((lang) => LOCALES.includes(lang)) || "en";
+    // languages with region code
+    const languages = (await headers())
+        .get("accept-language")
+        ?.split(",")
+        .map((l) => l.replace(/;q=[\.\d]+/, ""));
+    // languages without region code
+    const langs = languages?.map((l) => l.replace(/-[A-Z]+$/, ""));
+    const locale = languages?.find((l) => LOCALES.includes(l)) || langs?.find((l) => LOCALES.includes(l)) || "en";
 
     return {
         locale,
