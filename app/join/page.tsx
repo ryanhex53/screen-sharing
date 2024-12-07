@@ -58,7 +58,7 @@ export default function JoinPage() {
             host: "peerjs.linkgz.cn",
             secure: true,
             path: "/myapp",
-            config: turnConfig
+            config: { iceServers: [turnConfig.iceServers], sdpSemantics: "unified-plan" }
         });
         peerRef.current = peer;
 
