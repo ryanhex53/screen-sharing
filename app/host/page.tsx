@@ -20,35 +20,46 @@ export default function HostPage() {
     const router = useRouter();
 
     useEffect(() => {
-        try {
-            const newPeer = new Peer({
-                host: "peerjs.linkgz.cn",
-                secure: true,
-                path: "/myapp",
-                config: {
-                    iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "turn:turn.cloudflare.com:3478" }]
-                }
-            });
-            setPeer(newPeer);
-
-            newPeer.on("open", (id) => {
-                setRoomId(id);
-            });
-
-            newPeer.on("connection", (connection) => {
-                setConnections((prev) => [...prev, connection.peer]);
-
-                connection.on("close", () => {
-                    setConnections((prev) => prev.filter((peerId) => peerId !== connection.peer));
+        const fetchTurnCredentials = async () => {
+            try {
+                const response = await fetch("/api/turn-credentials", {
+                    method: "POST"
                 });
-            });
 
-            return () => {
-                newPeer.destroy();
-            };
-        } catch (error) {
-            console.error("Error initializing peer:", error);
-        }
+                if (!response.ok) {
+                    throw new Error("Failed to fetch TURN credentials");
+                }
+
+                const turnConfig = await response.json();
+                const newPeer = new Peer({
+                    host: "peerjs.linkgz.cn",
+                    secure: true,
+                    path: "/myapp",
+                    config: turnConfig
+                });
+                setPeer(newPeer);
+
+                newPeer.on("open", (id) => {
+                    setRoomId(id);
+                });
+
+                newPeer.on("connection", (connection) => {
+                    setConnections((prev) => [...prev, connection.peer]);
+
+                    connection.on("close", () => {
+                        setConnections((prev) => prev.filter((peerId) => peerId !== connection.peer));
+                    });
+                });
+
+                return () => {
+                    newPeer.destroy();
+                };
+            } catch (error) {
+                console.error("Error initializing peer:", error);
+            }
+        };
+
+        fetchTurnCredentials();
     }, []);
 
     useEffect(() => {

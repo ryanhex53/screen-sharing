@@ -39,7 +39,7 @@ export default function JoinPage() {
         }
     }, [activeStream]);
 
-    function joinRoom(roomIdToJoin: string = roomId) {
+    async function joinRoom(roomIdToJoin: string = roomId) {
         if (!roomIdToJoin.trim()) {
             toast({
                 title: "Room code required",
@@ -51,13 +51,21 @@ export default function JoinPage() {
 
         setIsConnecting(true);
 
+        const response = await fetch("/api/turn-credentials", {
+            method: "POST"
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch TURN credentials");
+        }
+
+        const turnConfig = await response.json();
+
         const peer = new Peer({
             host: "peerjs.linkgz.cn",
             secure: true,
             path: "/myapp",
-            config: {
-                iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "turn:turn.cloudflare.com:3478" }]
-            }
+            config: turnConfig
         });
         peerRef.current = peer;
 
