@@ -21,7 +21,14 @@ export default function HostPage() {
 
     useEffect(() => {
         try {
-            const newPeer = new Peer({ host: "peerjs.linkgz.cn", secure: true, path: "/myapp" });
+            const newPeer = new Peer({
+                host: "peerjs.linkgz.cn",
+                secure: true,
+                path: "/myapp",
+                config: {
+                    iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "turn:turn.cloudflare.com:3478" }]
+                }
+            });
             setPeer(newPeer);
 
             newPeer.on("open", (id) => {

@@ -51,7 +51,14 @@ export default function JoinPage() {
 
         setIsConnecting(true);
 
-        const peer = new Peer({ host: "peerjs.linkgz.cn", secure: true, path: "/myapp" });
+        const peer = new Peer({
+            host: "peerjs.linkgz.cn",
+            secure: true,
+            path: "/myapp",
+            config: {
+                iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "turn:turn.cloudflare.com:3478" }]
+            }
+        });
         peerRef.current = peer;
 
         peer.on("open", () => {
