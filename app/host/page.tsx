@@ -10,7 +10,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Peer from "peerjs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getTurnCredentials } from "../actions";
 import { ShareOptions } from "./_components/ShareOptions";
 
@@ -18,9 +18,11 @@ export default function HostPage() {
     const tc = useTranslations("Common");
     const t = useTranslations("HostPage");
     const userIp = useIp();
+    const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
     const [roomId, setRoomId] = useState("");
     const [peer, setPeer] = useState<Peer | null>(null);
-    const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
+    const [hostStream, setHostStream] = useState<MediaStream | null>(null);
     const [connections, setConnections] = useState<string[]>([]);
     const { toast } = useToast();
     const router = useRouter();
@@ -45,6 +47,9 @@ export default function HostPage() {
                 });
 
                 newPeer.on("connection", (connection) => {
+                    if (connections.length === 0) {
+                        connection.send("allow-audio-stream");
+                    }
                     setConnections((prev) => [...prev, connection.peer]);
 
                     connection.on("close", () => {
@@ -66,7 +71,7 @@ export default function HostPage() {
     useEffect(() => {
         if (!peer) return;
 
-        if (!activeStream) {
+        if (!hostStream) {
             if (connections.length > 0) {
                 toast({
                     title: t("new-viewer"),
@@ -76,12 +81,22 @@ export default function HostPage() {
                         <ToastAction
                             altText={t("start-sharing")}
                             onClick={async () => {
+                                let micStream;
+                                try {
+                                    micStream = await navigator.mediaDevices.getUserMedia({
+                                        video: false,
+                                        audio: true
+                                    });
+                                } catch (err) {
+                                    console.warn("Microphone access error:", err);
+                                }
                                 try {
                                     const stream = await navigator.mediaDevices.getDisplayMedia({
                                         video: true,
                                         audio: true
                                     });
-                                    setActiveStream(stream);
+                                    if (micStream) stream.addTrack(micStream.getAudioTracks()[0]);
+                                    setHostStream(stream);
                                 } catch (err) {
                                     console.error("Screen sharing error:", err);
                                     toast({
@@ -97,21 +112,34 @@ export default function HostPage() {
                 });
             }
         } else {
-            connections.forEach((connection) => {
-                const call = peer.call(connection, activeStream);
+            connections.forEach((connection, idx) => {
+                const call = peer.call(connection, hostStream);
 
-                activeStream.getTracks()[0].onended = () => {
+                if (idx === 0) {
+                    call.on("stream", (stream) => {
+                        setRemoteStream(stream);
+                    });
+                }
+
+                hostStream.getTracks()[0].onended = () => {
                     call.close();
-                    activeStream.getTracks().forEach((track) => track.stop());
+                    hostStream.getTracks().forEach((track) => track.stop());
                 };
             });
         }
-    }, [peer, toast, activeStream, connections]);
+    }, [peer, toast, hostStream, connections]);
+
+    useEffect(() => {
+        if (audioRef.current && remoteStream) {
+            audioRef.current.srcObject = remoteStream;
+            audioRef.current.play().catch(console.error);
+        }
+    }, [remoteStream]);
 
     function endSession() {
-        if (activeStream) {
-            activeStream.getTracks().forEach((track) => track.stop());
-            setActiveStream(null);
+        if (hostStream) {
+            hostStream.getTracks().forEach((track) => track.stop());
+            setHostStream(null);
         }
 
         if (peer) {
@@ -159,7 +187,9 @@ export default function HostPage() {
                             <span className="text-lg font-semibold">{connections.length}</span>
                         </div>
 
-                        {activeStream && (
+                        <audio ref={audioRef} autoPlay hidden />
+
+                        {hostStream && (
                             <div className="flex justify-end pt-4">
                                 <Button variant="destructive" onClick={endSession} className="flex items-center gap-2">
                                     {t("stop-sharing")}

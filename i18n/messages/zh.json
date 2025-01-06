@@ -54,6 +54,8 @@
         "disconnected": "已断开连接",
         "disconnected-desc": "会议已结束。",
         "connection-failed": "连接失败",
-        "connection-failed-desc": "无法连接到房间。请检查房间代码并重试。"
+        "connection-failed-desc": "无法连接到房间。请检查房间代码并重试。",
+        "first-client-mic-allow-title": "允许麦克风访问",
+        "first-client-mic-allow-desc": "加入的第一个观众必须允许麦克风访问以启用音频共享。"
     }
 }

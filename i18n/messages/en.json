@@ -54,6 +54,8 @@
         "disconnected": "Disconnected",
         "disconnected-desc": "The session has been ended.",
         "connection-failed": "Connection failed",
-        "connection-failed-desc": "Could not connect to the room. Please check the room code and try again."
+        "connection-failed-desc": "Could not connect to the room. Please check the room code and try again.",
+        "first-mic-allow-title": "Allow Microphone Access",
+        "first-mic-allow-desc": "The first viewer to join must allow microphone access to enable audio sharing."
     }
 }

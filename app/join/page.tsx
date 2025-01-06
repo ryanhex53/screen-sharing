@@ -8,18 +8,21 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import Peer from "peerjs";
+import Peer, { MediaConnection } from "peerjs";
 import { useEffect, useRef, useState } from "react";
 import { getTurnCredentials } from "../actions";
 
 export default function JoinPage() {
     const tc = useTranslations("Common");
     const t = useTranslations("JoinPage");
+    const userIp = useIp();
     const [roomId, setRoomId] = useState("");
     const [isConnecting, setIsConnecting] = useState(false);
     const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const peerRef = useRef<Peer | null>(null);
+    const clientCall = useRef<MediaConnection | null>(null);
+    const clientStream = useRef<MediaStream | null>(null);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -85,6 +88,19 @@ export default function JoinPage() {
                 });
             });
 
+            connection.on("data", (data) => {
+                if (data === "allow-audio-stream") {
+                    toast({
+                        title: t("first-mic-allow-title"),
+                        description: t("first-mic-allow-desc")
+                    });
+                    navigator.mediaDevices.getUserMedia({ video: false, audio: true }).then((stream) => {
+                        clientStream.current = stream;
+                        clientCall.current = peer.call(roomIdToJoin, stream);
+                    });
+                }
+            });
+
             peer.on("call", (call) => {
                 call.answer();
                 call.on("stream", (remoteStream) => {
@@ -101,6 +117,8 @@ export default function JoinPage() {
                     description: t("disconnected-desc"),
                     variant: "destructive"
                 });
+                clientCall.current?.close();
+                clientStream.current?.getTracks().forEach((track) => track.stop());
             });
         });
 
