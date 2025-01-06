@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ToastAction } from "@/components/ui/toast";
+import { useIp } from "@/hooks/use-ip";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Monitor, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -16,6 +17,7 @@ import { ShareOptions } from "./_components/ShareOptions";
 export default function HostPage() {
     const tc = useTranslations("Common");
     const t = useTranslations("HostPage");
+    const userIp = useIp();
     const [roomId, setRoomId] = useState("");
     const [peer, setPeer] = useState<Peer | null>(null);
     const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
@@ -26,7 +28,7 @@ export default function HostPage() {
     useEffect(() => {
         const initializePeer = async () => {
             try {
-                const turnConfig = await getTurnCredentials();
+                const turnConfig = await getTurnCredentials(userIp);
                 const newPeer = new Peer({
                     host: "peerjs.linkgz.cn",
                     secure: true,

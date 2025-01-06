@@ -1,6 +1,6 @@
 "use server";
 
-export async function getTurnCredentials() {
+export async function getTurnCredentials(customIdentifier: string) {
     const key = process.env.CLOUDFLARE_TURN_KEY;
     const code = process.env.CLOUDFLARE_TURN_CODE;
 
@@ -14,7 +14,7 @@ export async function getTurnCredentials() {
             Authorization: `Bearer ${code}`,
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ ttl: 86400 })
+        body: JSON.stringify({ ttl: 6 * 60 * 60, customIdentifier })
     });
 
     if (!response.ok) {

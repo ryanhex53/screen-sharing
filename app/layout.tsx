@@ -1,6 +1,7 @@
 import { Clarity } from "@/components/Clarity";
 import { Toaster } from "@/components/ui/toaster";
 
+import { IpProvider } from "@/hooks/use-ip";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
@@ -35,7 +36,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <html lang={locale}>
             <body className={inter.className}>
                 <main className="flex flex-col justify-between min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-                    <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+                    <NextIntlClientProvider messages={messages}>
+                        <IpProvider>{children}</IpProvider>
+                    </NextIntlClientProvider>
                     <footer className="py-8 px-4 text-center text-gray-500 text-sm">
                         {t.rich("footer", {
                             author: (chunks) => (

@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useIp } from "@/hooks/use-ip";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -61,7 +62,7 @@ export default function JoinPage() {
 
         setIsConnecting(true);
 
-        const turnConfig = await getTurnCredentials();
+        const turnConfig = await getTurnCredentials(userIp);
 
         const peer = new Peer({
             host: "peerjs.linkgz.cn",
