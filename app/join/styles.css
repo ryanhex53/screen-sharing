@@ -1,0 +1,32 @@
+.full-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height: 100%;
+    z-index: 99;
+    object-fit: cover;
+}
+
+/* 当 .full-page 类被应用时，设置 html 和 body 样式 */
+.full-page ~ html,
+.full-page ~ body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#fullPageButtons {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#fullPageButtons.show {
+    opacity: 1;
+}
+
+#fullPageButtons.hide {
+    opacity: 0;
+}

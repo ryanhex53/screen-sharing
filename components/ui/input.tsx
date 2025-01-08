@@ -9,4 +9,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
 });
 Input.displayName = "Input";
 
-export { Input };
+const Checkbox = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { label: string }>(({ label, disabled, ...props }, ref) => (
+    <label className="flex items-center space-x-2">
+        <input ref={ref} type="checkbox" className={cn("form-checkbox", { "cursor-not-allowed": disabled })} disabled={disabled} {...props} />
+        <span className={cn({ "text-muted-foreground": disabled })}>{label}</span>
+    </label>
+));
+Checkbox.displayName = "Checkbox";
+
+export { Input, Checkbox };

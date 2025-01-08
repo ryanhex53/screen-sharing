@@ -40,7 +40,8 @@
         "start-sharing": "Start Sharing",
         "session-ended": "Session ended",
         "session-ended-desc": "Your screen sharing session has been terminated.",
-        "allow-voice-call": "Allow a voice call with the first viewer"
+        "allow-voice-call": "Allow a voice call with the first viewer",
+        "waiting-for-viewers": "At least one viewer is required to start sharing"
     },
     "JoinPage": {
         "title": "Join a Room",
@@ -57,6 +58,8 @@
         "connection-failed": "Connection failed",
         "connection-failed-desc": "Could not connect to the room. Please check the room code and try again.",
         "first-mic-allow-title": "Allow Microphone Access",
-        "first-mic-allow-desc": "The first viewer to join must allow microphone access to enable voice call."
+        "first-mic-allow-desc": "The first viewer to join must allow microphone access to enable voice call.",
+        "full-page": "Full Page",
+        "exit-full-page": "Exit Full Page"
     }
 }

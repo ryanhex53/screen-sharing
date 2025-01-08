@@ -13,6 +13,7 @@ import Peer from "peerjs";
 import { useEffect, useRef, useState } from "react";
 import { getTurnCredentials } from "../actions";
 import { ShareOptions } from "./_components/ShareOptions";
+import { Checkbox } from "@/components/ui/input";
 
 export default function HostPage() {
     const tc = useTranslations("Common");
@@ -89,6 +90,7 @@ export default function HostPage() {
         if (!hostStream) {
             if (connections.length > 0) {
                 toast({
+                    closeble: false,
                     title: t("new-viewer"),
                     description: t("new-viewer-desc"),
                     duration: Infinity,
@@ -173,7 +175,7 @@ export default function HostPage() {
         <div className="py-8 px-4">
             <div className="max-w-2xl mx-auto space-y-8">
                 <Button variant="outline" asChild>
-                    <Link href="/" className="flex items-center gap-2">
+                    <Link href="/" className="flex items-center gap-2" onClick={endSession}>
                         <ArrowLeft className="h-4 w-4" />
                         {tc("back-to-home")}
                     </Link>
@@ -188,15 +190,14 @@ export default function HostPage() {
                         <CardDescription>{t("description")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <label>
-                            <input
-                                type="checkbox"
-                                onChange={(event) => {
-                                    setAllowVoiceCall(event.target.checked);
-                                }}
-                            />
-                            <span> {t("allow-voice-call")}</span>
-                        </label>
+                        <Checkbox
+                            label={t("allow-voice-call")}
+                            disabled={!!hostStream}
+                            checked={allowVoiceCall}
+                            onChange={(event) => {
+                                setAllowVoiceCall(event.target.checked);
+                            }}
+                        />
                         <ShareOptions roomId={roomId} />
 
                         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -206,6 +207,12 @@ export default function HostPage() {
                             </div>
                             <span className="text-lg font-semibold">{connections.length}</span>
                         </div>
+
+                        {connections.length === 0 && (
+                            <div className="flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <span className="text-sm text-gray-500">{t("waiting-for-viewers")}</span>
+                            </div>
+                        )}
 
                         <audio ref={audioRef} autoPlay hidden />
 

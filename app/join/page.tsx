@@ -5,12 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { useIp } from "@/hooks/use-ip";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { ArrowLeft, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Peer, { MediaConnection } from "peerjs";
 import { useEffect, useRef, useState } from "react";
 import { getTurnCredentials } from "../actions";
+import "./styles.css";
 
 const UUID4_REGEX = /^[a-f\d]{8}-([\da-f]{4}-){3}[\da-f]{12}$/i;
 
@@ -21,24 +23,40 @@ export default function JoinPage() {
     const [roomId, setRoomId] = useState("");
     const [isConnecting, setIsConnecting] = useState(false);
     const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
+    const [showFullButtons, setShowFullButtons] = useState(false);
+    const [isFullPage, setIsFullPage] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
     const peerRef = useRef<Peer | null>(null);
     const clientCall = useRef<MediaConnection | null>(null);
     const clientStream = useRef<MediaStream | null>(null);
     const { toast } = useToast();
 
+    let timer: NodeJS.Timeout;
+    const handleMouseMove = () => {
+        setShowFullButtons(true);
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            setShowFullButtons(false);
+        }, 2000);
+    };
+
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const roomFromUrl = params.get("room");
-        if (roomFromUrl && UUID4_REGEX.test(roomId)) {
+        if (roomFromUrl && UUID4_REGEX.test(roomFromUrl)) {
             setRoomId(roomFromUrl);
             joinRoom(roomFromUrl);
         }
+
+        window.addEventListener("mousemove", handleMouseMove);
+
         return () => {
             if (peerRef.current) {
                 peerRef.current.destroy();
                 peerRef.current = null;
             }
+            window.removeEventListener("mousemove", handleMouseMove);
+            clearTimeout(timer);
         };
     }, []);
 
@@ -80,6 +98,7 @@ export default function JoinPage() {
             connection.on("open", () => {
                 toast({
                     title: t("connected"),
+                    duration: 10000,
                     description: t("connected-desc")
                 });
 
@@ -158,13 +177,26 @@ export default function JoinPage() {
                         ) : (
                             <div className="space-y-4">
                                 <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden group">
-                                    <video ref={videoRef} className="w-full h-full object-contain" autoPlay playsInline loop controls />
+                                    <video ref={videoRef} className={cn("w-full h-full object-contain", { "full-page": isFullPage })} autoPlay playsInline loop controls />
                                 </div>
                             </div>
                         )}
                     </CardContent>
                 </Card>
             </div>
+            {activeStream && (
+                <div id="fullPageButtons" className={cn("absolute top-1 right-1", { show: showFullButtons, hide: !showFullButtons })} style={{ zIndex: 100 }}>
+                    {isFullPage ? (
+                        <Button variant="outline" onClick={() => setIsFullPage(false)}>
+                            {t("exit-full-page")}
+                        </Button>
+                    ) : (
+                        <Button variant="outline" onClick={() => setIsFullPage(true)}>
+                            {t("full-page")}
+                        </Button>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
