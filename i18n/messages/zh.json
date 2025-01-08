@@ -39,7 +39,8 @@
         "share-error-desc": "无法启动屏幕共享。请再试一次。",
         "start-sharing": "开始共享",
         "session-ended": "会话已结束",
-        "session-ended-desc": "您的屏幕共享会话已终止。"
+        "session-ended-desc": "您的屏幕共享会话已终止。",
+        "allow-voice-call": "允许与第一个观众进行语音通话"
     },
     "JoinPage": {
         "title": "加入房间",
@@ -56,6 +57,6 @@
         "connection-failed": "连接失败",
         "connection-failed-desc": "无法连接到房间。请检查房间代码并重试。",
         "first-client-mic-allow-title": "允许麦克风访问",
-        "first-client-mic-allow-desc": "加入的第一个观众必须允许麦克风访问以启用音频共享。"
+        "first-client-mic-allow-desc": "加入的第一个观众必须允许麦克风访问以启用语音通话。"
     }
 }

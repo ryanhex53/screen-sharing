@@ -12,6 +12,8 @@ import Peer, { MediaConnection } from "peerjs";
 import { useEffect, useRef, useState } from "react";
 import { getTurnCredentials } from "../actions";
 
+const UUID4_REGEX = /^[a-f\d]{8}-([\da-f]{4}-){3}[\da-f]{12}$/i;
+
 export default function JoinPage() {
     const tc = useTranslations("Common");
     const t = useTranslations("JoinPage");
@@ -28,10 +30,10 @@ export default function JoinPage() {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const roomFromUrl = params.get("room");
-        if (roomFromUrl) {
+        if (roomFromUrl && UUID4_REGEX.test(roomId)) {
             setRoomId(roomFromUrl);
+            joinRoom(roomFromUrl);
         }
-
         return () => {
             if (peerRef.current) {
                 peerRef.current.destroy();
@@ -39,12 +41,6 @@ export default function JoinPage() {
             }
         };
     }, []);
-
-    useEffect(() => {
-        if (roomId) {
-            joinRoom(roomId);
-        }
-    }, [roomId]);
 
     useEffect(() => {
         if (videoRef.current && activeStream) {
@@ -86,19 +82,19 @@ export default function JoinPage() {
                     title: t("connected"),
                     description: t("connected-desc")
                 });
-            });
 
-            connection.on("data", (data) => {
-                if (data === "allow-audio-stream") {
-                    toast({
-                        title: t("first-mic-allow-title"),
-                        description: t("first-mic-allow-desc")
-                    });
-                    navigator.mediaDevices.getUserMedia({ video: false, audio: true }).then((stream) => {
-                        clientStream.current = stream;
-                        clientCall.current = peer.call(roomIdToJoin, stream);
-                    });
-                }
+                connection.on("data", (data) => {
+                    if (data === "allow-audio-stream") {
+                        toast({
+                            title: t("first-mic-allow-title"),
+                            description: t("first-mic-allow-desc")
+                        });
+                        navigator.mediaDevices.getUserMedia({ video: false, audio: true }).then((stream) => {
+                            clientStream.current = stream;
+                            clientCall.current = peer.call(roomIdToJoin, stream);
+                        });
+                    }
+                });
             });
 
             peer.on("call", (call) => {
@@ -155,7 +151,7 @@ export default function JoinPage() {
                         {!activeStream ? (
                             <div className="space-y-4">
                                 <Input placeholder={t("enter-code")} value={roomId} onChange={(e) => setRoomId(e.target.value)} disabled={isConnecting} />
-                                <Button className="w-full" onClick={() => joinRoom()} disabled={isConnecting || !roomId.trim()}>
+                                <Button className="w-full" onClick={() => joinRoom()} disabled={isConnecting || !UUID4_REGEX.test(roomId)}>
                                     {isConnecting ? t("connecting") : t("join-room")}
                                 </Button>
                             </div>

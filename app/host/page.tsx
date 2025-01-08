@@ -18,6 +18,7 @@ export default function HostPage() {
     const tc = useTranslations("Common");
     const t = useTranslations("HostPage");
     const userIp = useIp();
+    const [allowVoiceCall, setAllowVoiceCall] = useState(false);
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
     const [roomId, setRoomId] = useState("");
@@ -47,13 +48,27 @@ export default function HostPage() {
                 });
 
                 newPeer.on("connection", (connection) => {
-                    if (connections.length === 0) {
-                        connection.send("allow-audio-stream");
+                    if (allowVoiceCall && connections.length === 0) {
+                        connection.on("open", () => {
+                            connection.send("allow-audio-stream");
+                        });
                     }
                     setConnections((prev) => [...prev, connection.peer]);
 
                     connection.on("close", () => {
                         setConnections((prev) => prev.filter((peerId) => peerId !== connection.peer));
+                    });
+                });
+
+                newPeer.on("call", (call) => {
+                    if (remoteStream) {
+                        // Close the call if there is already a stream
+                        call.close();
+                        return;
+                    }
+                    call.answer();
+                    call.on("stream", (stream) => {
+                        setRemoteStream(stream);
                     });
                 });
 
@@ -82,13 +97,15 @@ export default function HostPage() {
                             altText={t("start-sharing")}
                             onClick={async () => {
                                 let micStream;
-                                try {
-                                    micStream = await navigator.mediaDevices.getUserMedia({
-                                        video: false,
-                                        audio: true
-                                    });
-                                } catch (err) {
-                                    console.warn("Microphone access error:", err);
+                                if (allowVoiceCall) {
+                                    try {
+                                        micStream = await navigator.mediaDevices.getUserMedia({
+                                            video: false,
+                                            audio: true
+                                        });
+                                    } catch (err) {
+                                        console.warn("Microphone access error:", err);
+                                    }
                                 }
                                 try {
                                     const stream = await navigator.mediaDevices.getDisplayMedia({
@@ -114,12 +131,6 @@ export default function HostPage() {
         } else {
             connections.forEach((connection, idx) => {
                 const call = peer.call(connection, hostStream);
-
-                if (idx === 0) {
-                    call.on("stream", (stream) => {
-                        setRemoteStream(stream);
-                    });
-                }
 
                 hostStream.getTracks()[0].onended = () => {
                     call.close();
@@ -177,6 +188,15 @@ export default function HostPage() {
                         <CardDescription>{t("description")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
+                        <label>
+                            <input
+                                type="checkbox"
+                                onChange={(event) => {
+                                    setAllowVoiceCall(event.target.checked);
+                                }}
+                            />
+                            <span> {t("allow-voice-call")}</span>
+                        </label>
                         <ShareOptions roomId={roomId} />
 
                         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">

@@ -39,7 +39,8 @@
         "share-error-desc": "Failed to start screen sharing. Please try again.",
         "start-sharing": "Start Sharing",
         "session-ended": "Session ended",
-        "session-ended-desc": "Your screen sharing session has been terminated."
+        "session-ended-desc": "Your screen sharing session has been terminated.",
+        "allow-voice-call": "Allow a voice call with the first viewer"
     },
     "JoinPage": {
         "title": "Join a Room",
@@ -56,6 +57,6 @@
         "connection-failed": "Connection failed",
         "connection-failed-desc": "Could not connect to the room. Please check the room code and try again.",
         "first-mic-allow-title": "Allow Microphone Access",
-        "first-mic-allow-desc": "The first viewer to join must allow microphone access to enable audio sharing."
+        "first-mic-allow-desc": "The first viewer to join must allow microphone access to enable voice call."
     }
 }
