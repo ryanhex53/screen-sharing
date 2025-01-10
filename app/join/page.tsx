@@ -113,8 +113,8 @@ export default function JoinPage() {
                             .getUserMedia({
                                 video: false,
                                 audio: {
-                                    sampleRate: { ideal: 24000, min: 16000 },
-                                    sampleSize: { ideal: 16, min: 8 }
+                                    sampleRate: { ideal: 24000 },
+                                    sampleSize: { ideal: 16 }
                                 }
                             })
                             .then((stream) => {

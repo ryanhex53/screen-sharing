@@ -106,8 +106,8 @@ export default function HostPage() {
                                         micStream = await navigator.mediaDevices.getUserMedia({
                                             video: false,
                                             audio: {
-                                                sampleRate: { ideal: 24000, min: 16000 },
-                                                sampleSize: { ideal: 16, min: 8 }
+                                                sampleRate: { ideal: 24000 },
+                                                sampleSize: { ideal: 16 }
                                             }
                                         });
                                     } catch (err) {
@@ -117,11 +117,7 @@ export default function HostPage() {
                                 try {
                                     const stream = await navigator.mediaDevices.getDisplayMedia({
                                         video: {
-                                            frameRate: { ideal: 30, min: 15 }
-                                        },
-                                        audio: {
-                                            sampleRate: { ideal: 48000, min: 24000 },
-                                            sampleSize: { ideal: 24, min: 16 }
+                                            frameRate: { ideal: 30 }
                                         }
                                     });
                                     if (micStream) stream.addTrack(micStream.getAudioTracks()[0]);
