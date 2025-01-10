@@ -19,7 +19,7 @@ export default function HostPage() {
     const tc = useTranslations("Common");
     const t = useTranslations("HostPage");
     const userIp = useIp();
-    const [allowVoiceCall, setAllowVoiceCall] = useState(false);
+    const [allowVoiceCall, setAllowVoiceCall] = useState(true);
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
     const [roomId, setRoomId] = useState("");
@@ -52,11 +52,13 @@ export default function HostPage() {
                     if (allowVoiceCall && connections.length === 0) {
                         connection.on("open", () => {
                             connection.send("allow-audio-stream");
+                            console.log("Sent allow-audio-stream");
                         });
                     }
                     setConnections((prev) => [...prev, connection.peer]);
 
                     connection.on("close", () => {
+                        connection.removeAllListeners();
                         setConnections((prev) => prev.filter((peerId) => peerId !== connection.peer));
                     });
                 });

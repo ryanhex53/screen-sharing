@@ -103,6 +103,7 @@ export default function JoinPage() {
                 });
 
                 connection.on("data", (data) => {
+                    console.log("Data received:", data);
                     if (data === "allow-audio-stream") {
                         toast({
                             title: t("first-mic-allow-title"),
