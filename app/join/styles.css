@@ -5,7 +5,7 @@
     width: 100%;
     height: 100%;
     z-index: 99;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 /* 当 .full-page 类被应用时，设置 html 和 body 样式 */

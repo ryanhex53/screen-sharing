@@ -109,10 +109,18 @@ export default function JoinPage() {
                             title: t("first-mic-allow-title"),
                             description: t("first-mic-allow-desc")
                         });
-                        navigator.mediaDevices.getUserMedia({ video: false, audio: true }).then((stream) => {
-                            clientStream.current = stream;
-                            clientCall.current = peer.call(roomIdToJoin, stream);
-                        });
+                        navigator.mediaDevices
+                            .getUserMedia({
+                                video: false,
+                                audio: {
+                                    sampleRate: { ideal: 24000, min: 16000 },
+                                    sampleSize: { ideal: 16, min: 8 }
+                                }
+                            })
+                            .then((stream) => {
+                                clientStream.current = stream;
+                                clientCall.current = peer.call(roomIdToJoin, stream);
+                            });
                     }
                 });
             });
