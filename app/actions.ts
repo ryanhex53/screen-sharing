@@ -1,6 +1,14 @@
 "use server";
 
-export async function getTurnCredentials(customIdentifier: string) {
+import { createHmac } from "node:crypto";
+
+export type ICEServer = {
+    urls: string[]; // this can be a string in browsers
+    username?: string;
+    credential?: string;
+};
+
+export async function getTurnCredentials(customIdentifier: string): Promise<{ iceServers: ICEServer }> {
     const key = process.env.CLOUDFLARE_TURN_KEY;
     const code = process.env.CLOUDFLARE_TURN_CODE;
 
@@ -22,6 +30,20 @@ export async function getTurnCredentials(customIdentifier: string) {
     }
 
     return response.json();
+}
+
+export async function getTurnServer(id: string): Promise<ICEServer> {
+    const DefaultTTL: number = 3600; // 3600秒，默认1小时的TTL
+    const key = process.env.COTURNSERVER_SECRET || "";
+    const server = process.env.NEXT_PUBLIC_COTURNSERVER_ADDRESS || "";
+    const timestamp = Math.floor(Date.now() / 1000) + DefaultTTL;
+    const username = `${timestamp}:${id}`;
+    const credential = createHmac("sha1", key).update(username).digest("base64");
+    return {
+        urls: [`turn:${server}?transport=udp`, `turn:${server}?transport=tcp`],
+        username,
+        credential
+    };
 }
 
 export type ShortLink = {

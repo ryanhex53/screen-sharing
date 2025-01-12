@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Peer, { MediaConnection } from "peerjs";
 import { useEffect, useRef, useState } from "react";
-import { getTurnCredentials } from "../actions";
+import { getTurnCredentials, getTurnServer, ICEServer } from "../actions";
 import "./styles.css";
 
 const UUID4_REGEX = /^[a-f\d]{8}-([\da-f]{4}-){3}[\da-f]{12}$/i;
@@ -79,14 +79,26 @@ export default function JoinPage() {
 
         setIsConnecting(true);
 
-        const turnConfig = await getTurnCredentials(userIp);
+        const iceServers: ICEServer[] = [{ urls: ["stun:stun.l.google.com:19302"] }];
+        if (process.env.NEXT_PUBLIC_COTURNSERVER_ADDRESS) {
+            iceServers[0].urls.unshift(`stun:${process.env.NEXT_PUBLIC_COTURNSERVER_ADDRESS}`);
+        }
+        const params = new URLSearchParams(window.location.search);
+        const fast = params.get("fast");
+        if (fast !== null) {
+            const iceServer = await getTurnServer(userIp);
+            iceServers.unshift(iceServer);
+        } else {
+            const turnConfig = await getTurnCredentials(userIp);
+            iceServers.push(turnConfig.iceServers);
+        }
 
         const peer = new Peer({
             host: "peerjs.linkgz.cn",
             secure: true,
             path: "/myapp",
             config: {
-                iceServers: [{ urls: "stun:stun.l.google.com:19302" }, turnConfig.iceServers],
+                iceServers,
                 sdpSemantics: "unified-plan"
             }
         });

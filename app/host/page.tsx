@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Peer from "peerjs";
 import { useEffect, useRef, useState } from "react";
-import { getTurnCredentials } from "../actions";
+import { getTurnCredentials, getTurnServer, ICEServer } from "../actions";
 import { ShareOptions } from "./_components/ShareOptions";
 import { Checkbox } from "@/components/ui/input";
 
@@ -32,13 +32,25 @@ export default function HostPage() {
     useEffect(() => {
         const initializePeer = async () => {
             try {
-                const turnConfig = await getTurnCredentials(userIp);
+                const iceServers: ICEServer[] = [{ urls: ["stun:stun.l.google.com:19302"] }];
+                if (process.env.NEXT_PUBLIC_COTURNSERVER_ADDRESS) {
+                    iceServers[0].urls.unshift(`stun:${process.env.NEXT_PUBLIC_COTURNSERVER_ADDRESS}`);
+                }
+                const params = new URLSearchParams(window.location.search);
+                const fast = params.get("fast");
+                if (fast !== null) {
+                    const iceServer = await getTurnServer(userIp);
+                    iceServers.unshift(iceServer);
+                } else {
+                    const turnConfig = await getTurnCredentials(userIp);
+                    iceServers.push(turnConfig.iceServers);
+                }
                 const newPeer = new Peer({
                     host: "peerjs.linkgz.cn",
                     secure: true,
                     path: "/myapp",
                     config: {
-                        iceServers: [{ urls: "stun:stun.l.google.com:19302" }, turnConfig.iceServers],
+                        iceServers,
                         sdpSemantics: "unified-plan"
                     }
                 });

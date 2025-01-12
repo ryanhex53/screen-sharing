@@ -18,7 +18,9 @@ export function ShareOptions({ roomId }: ShareOptionsProps) {
 
     useEffect(() => {
         if (roomId) {
-            generateRoomUrl(`${window.location.origin}/join?room=${roomId}`);
+            const params = new URLSearchParams(window.location.search);
+            params.set("room", roomId);
+            generateRoomUrl(`${window.location.origin}/join?${params.toString()}`);
         }
     }, [roomId]);
 
