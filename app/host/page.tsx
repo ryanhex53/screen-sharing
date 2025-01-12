@@ -130,7 +130,8 @@ export default function HostPage() {
                                     const stream = await navigator.mediaDevices.getDisplayMedia({
                                         video: {
                                             frameRate: { ideal: 30 }
-                                        }
+                                        },
+                                        audio: true
                                     });
                                     if (micStream) stream.addTrack(micStream.getAudioTracks()[0]);
                                     setHostStream(stream);

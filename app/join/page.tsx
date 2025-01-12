@@ -63,7 +63,6 @@ export default function JoinPage() {
     useEffect(() => {
         if (videoRef.current && activeStream) {
             videoRef.current.srcObject = activeStream;
-            videoRef.current.play().catch(console.error);
         }
     }, [activeStream]);
 
