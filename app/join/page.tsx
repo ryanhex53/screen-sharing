@@ -3,12 +3,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Peer from "peerjs";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 export default function JoinPage() {
     const tc = useTranslations("Common");
@@ -18,7 +18,6 @@ export default function JoinPage() {
     const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const peerRef = useRef<Peer | null>(null);
-    const { toast } = useToast();
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -44,10 +43,8 @@ export default function JoinPage() {
 
     function joinRoom(roomIdToJoin: string = roomId) {
         if (!roomIdToJoin.trim()) {
-            toast({
-                title: t("code-required"),
-                description: t("code-required-desc"),
-                variant: "destructive"
+            toast.error(t("code-required"), {
+                description: t("code-required-desc")
             });
             return;
         }
@@ -61,8 +58,7 @@ export default function JoinPage() {
             const connection = peer.connect(roomIdToJoin);
 
             connection.on("open", () => {
-                toast({
-                    title: t("connected"),
+                toast.success(t("connected"), {
                     description: t("connected-desc")
                 });
             });
@@ -78,10 +74,8 @@ export default function JoinPage() {
                 setIsConnecting(false);
                 setRoomId("");
                 setActiveStream(null);
-                toast({
-                    title: t("disconnected"),
-                    description: t("disconnected-desc"),
-                    variant: "destructive"
+                toast.error(t("disconnected"), {
+                    description: t("disconnected-desc")
                 });
             });
         });
@@ -89,50 +83,44 @@ export default function JoinPage() {
         peer.on("error", (err) => {
             console.error("Peer error:", err);
             setIsConnecting(false);
-            toast({
-                title: t("connection-failed"),
-                description: t("connection-failed-desc"),
-                variant: "destructive"
+            toast.error(t("connection-failed"), {
+                description: t("connection-failed-desc")
             });
         });
     }
 
     return (
-        <div className="py-8 px-4">
-            <div className="max-w-2xl mx-auto space-y-8">
-                <Button variant="outline" asChild>
-                    <Link href="/" className="flex items-center gap-2">
-                        <ArrowLeft className="h-4 w-4" />
-                        {tc("back-to-home")}
-                    </Link>
-                </Button>
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 py-8">
+            <Button variant="outline" asChild>
+                <Link href="/" className="flex items-center self-start">
+                    <ArrowLeft />
+                    {tc("back-to-home")}
+                </Link>
+            </Button>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Users className="h-6 w-6" />
-                            {t("title")}
-                        </CardTitle>
-                        <CardDescription>{t("description")}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        {!activeStream ? (
-                            <div className="space-y-4">
-                                <Input placeholder={t("enter-code")} value={roomId} onChange={(e) => setRoomId(e.target.value)} disabled={isConnecting} />
-                                <Button className="w-full" onClick={() => joinRoom()} disabled={isConnecting || !roomId.trim()}>
-                                    {isConnecting ? t("connecting") : t("join-room")}
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden group">
-                                    <video ref={videoRef} className="w-full h-full object-contain" autoPlay playsInline loop controls />
-                                </div>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Users />
+                        {t("title")}
+                    </CardTitle>
+                    <CardDescription>{t("description")}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {!activeStream ? (
+                        <div className="flex flex-col gap-4">
+                            <Input placeholder={t("enter-code")} value={roomId} onChange={(e) => setRoomId(e.target.value)} disabled={isConnecting} />
+                            <Button className="w-full" onClick={() => joinRoom()} disabled={isConnecting || !roomId.trim()}>
+                                {isConnecting ? t("connecting") : t("join-room")}
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="relative overflow-hidden rounded-lg">
+                            <video ref={videoRef} className="h-full w-full object-contain" autoPlay playsInline loop controls muted />
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     );
 }

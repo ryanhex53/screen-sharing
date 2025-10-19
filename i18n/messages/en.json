@@ -14,7 +14,9 @@
         "create-room-btn": "Create Room",
         "join-title": "Join a Room",
         "join-desc": "Enter a room code to view someone's screen",
-        "join-room-btn": "Join Room"
+        "join-room-btn": "Join Room",
+        "note-title": "Note",
+        "note-description": "Screen sharing isn't supported on mobile devices. Mobile users can still join a room to view screens shared by others."
     },
     "ShareOptions": {
         "code-copied": "Room code copied!",
@@ -39,7 +41,9 @@
         "share-error-desc": "Failed to start screen sharing. Please try again.",
         "start-sharing": "Start Sharing",
         "session-ended": "Session ended",
-        "session-ended-desc": "Your screen sharing session has been terminated."
+        "session-ended-desc": "Your screen sharing session has been terminated.",
+        "room-creation-failed": "Failed to create room",
+        "room-creation-failed-desc": "Please try again."
     },
     "JoinPage": {
         "title": "Join a Room",
@@ -55,5 +59,12 @@
         "disconnected-desc": "The session has been ended.",
         "connection-failed": "Connection failed",
         "connection-failed-desc": "Could not connect to the room. Please check the room code and try again."
+    },
+    "CustomRoomIdForm": {
+        "trigger-text": "Need a custom room ID?",
+        "label": "Custom Room ID",
+        "placeholder": "my-presentation-room",
+        "description": "Must start and end with a letter or number. Dashes, underscores, and spaces allowed in between.",
+        "button-text": "Create Room with Custom ID"
     }
 }

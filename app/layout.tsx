@@ -1,6 +1,5 @@
-import { Clarity } from "@/components/Clarity";
-import { Toaster } from "@/components/ui/toaster";
-
+import { ClarityScript } from "@/components/clarity-script";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
@@ -18,9 +17,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const t = await getTranslations({ locale: (await params).locale, namespace: "Common" });
 
     return {
-        title: t("title"),
-        description: t("description"),
-        keywords: t("keywords")
+        title: t("title") || "Screen Share - Share Your Screen Instantly",
+        description: t("description") || "Share your screen instantly with anyone using a simple room code. No downloads or sign-ups required.",
+        keywords: ["screen sharing", "webrtc", "online screen share", "browser screen sharing", "free screen sharing", "share your screen", "share screen", "screen share"],
+        other: {
+            "google-site-verification": process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || ""
+        }
     };
 }
 
@@ -34,9 +36,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     return (
         <html lang={locale}>
             <body className={inter.className}>
-                <main className="flex flex-col justify-between min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+                <main className="from-background to-muted flex min-h-screen flex-col justify-between bg-linear-to-b">
                     <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
-                    <footer className="py-8 px-4 text-center text-gray-500 text-sm">
+                    <footer className="text-muted-foreground px-4 py-8 text-center text-sm">
                         {t.rich("footer", {
                             author: (chunks) => (
                                 <Link href="https://tonghohin.vercel.app" className="underline" target="_blank">
@@ -51,8 +53,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                         })}
                     </footer>
                 </main>
-                <Clarity />
-                <Toaster />
+                <ClarityScript />
+                <Toaster richColors />
             </body>
         </html>
     );
